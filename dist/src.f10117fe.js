@@ -117,7 +117,156 @@ parcelRequire = (function (modules, cache, entry, globalName) {
   }
 
   return newRequire;
-})({"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
+})({"src/Board.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.DeadZone = exports.Board = exports.Cell = void 0;
+
+var Cell =
+/** @class */
+function () {
+  function Cell(position, piece) {
+    this.position = position;
+    this.piece = piece;
+    this.isActive = false;
+    this._el = document.createElement("div");
+
+    this._el.classList.add("cell");
+  }
+
+  Cell.prototype.put = function (piece) {
+    this.piece = piece;
+  };
+
+  Cell.prototype.getPiece = function () {
+    return this.piece;
+  };
+
+  Cell.prototype.active = function () {
+    this.isActive = true;
+  };
+
+  Cell.prototype.deactive = function () {
+    this.isActive = false;
+  };
+
+  Cell.prototype.render = function () {
+    if (this.isActive) {
+      this._el.classList.add("active");
+    } else {
+      this._el.classList.remove("active");
+    }
+
+    this._el.innerHTML = this.piece ? this.piece.render() : "";
+  };
+
+  return Cell;
+}();
+
+exports.Cell = Cell;
+
+var Board =
+/** @class */
+function () {
+  function Board() {
+    this.cells = [];
+    this._el = document.createElement("div");
+    this._el.className = "board";
+
+    for (var row = 0; row < 4; row++) {
+      var rowEl = document.createElement("div");
+      rowEl.className = "row";
+
+      this._el.appendChild(rowEl);
+
+      for (var col = 0; col < 3; col++) {
+        var cell = new Cell({
+          row: row,
+          col: col
+        }, null);
+        this.cells.push(cell);
+        rowEl.appendChild(cell._el);
+      }
+    }
+  }
+
+  Board.prototype.render = function () {
+    this.cells.forEach(function (v) {
+      return v.render();
+    });
+  };
+
+  return Board;
+}();
+
+exports.Board = Board;
+
+var DeadZone =
+/** @class */
+function () {
+  function DeadZone(type) {
+    this.type = type;
+    this.cells = [];
+    this.deadzoneEl = document.getElementById(this.type + "_deadzone").querySelector(".card-body");
+
+    for (var col = 0; col < 4; col++) {
+      var cell = new Cell({
+        row: 0,
+        col: col
+      }, null);
+      this.cells.push(cell);
+      this.deadzoneEl.appendChild(cell._el);
+    }
+  }
+
+  DeadZone.prototype.put = function (piece) {
+    var emptyCell = this.cells.find(function (v) {
+      return v.getPiece() === null;
+    });
+    emptyCell.put(piece);
+    emptyCell.render();
+  };
+
+  DeadZone.prototype.render = function () {
+    this.cells.forEach(function (v) {
+      return v.render();
+    });
+  };
+
+  return DeadZone;
+}();
+
+exports.DeadZone = DeadZone;
+},{}],"src/Game.ts":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Game = void 0;
+
+var Board_1 = require("./Board");
+
+var Game =
+/** @class */
+function () {
+  function Game() {
+    this.board = new Board_1.Board();
+    this.upperDeadZone = new Board_1.DeadZone("upper");
+    this.lowerDeadZone = new Board_1.DeadZone("lower");
+    var boardContainer = document.querySelector(".board-container"); //boardContainer.firstChild.remove();
+
+    boardContainer.appendChild(this.board._el);
+  }
+
+  return Game;
+}();
+
+exports.Game = Game;
+},{"./Board":"src/Board.ts"}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
 var bundleURL = null;
 
 function getBundleURLCached() {
@@ -202,10 +351,14 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
+var Game_1 = require("./Game");
+
 require("bootstrap/dist/css/bootstrap.css");
 
 require("./styles/style.css");
-},{"bootstrap/dist/css/bootstrap.css":"node_modules/bootstrap/dist/css/bootstrap.css","./styles/style.css":"src/styles/style.css"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+
+new Game_1.Game();
+},{"./Game":"src/Game.ts","bootstrap/dist/css/bootstrap.css":"node_modules/bootstrap/dist/css/bootstrap.css","./styles/style.css":"src/styles/style.css"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -233,7 +386,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51530" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51849" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
